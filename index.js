@@ -148,7 +148,7 @@ axios({
                 let profile = "";
 
                 if (lessons[i].groupnames[0] != "") {
-                    if (lessons[i].groupnames[0].indexOf("Подгруппа") + 1) {
+                    if (lessons[i].groupnames[0].includes("Подгруппа")) {
                         group = lessons[i].groupnames[0].charAt(0);
                     }
                     else {
