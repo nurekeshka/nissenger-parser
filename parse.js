@@ -257,7 +257,7 @@ axios({
                       class_grade,
                       class_letter,
                       weekDays[day.getDay()],
-                      k,
+                      k.toString(),
                       profile,
                     ])
                     .commit();
