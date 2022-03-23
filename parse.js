@@ -265,7 +265,7 @@ axios({
               }
             }
           }
-          workbook.xlsx.writeFile(`${class_table[_class].name}.xlsx`);
+          workbook.xlsx.writeFile(`./excel/${class_table[_class].name}.xlsx`);
         })
         .catch(function (error) {
           console.log(error);
