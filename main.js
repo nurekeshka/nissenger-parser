@@ -20,26 +20,18 @@ let TeacherFormats = [
 ];
 
 let OfficeFormats = [
-    ["МСЗ", "Малый Спорт Зал"],
-    ["СЗ", "Спорт Зал"]
-]
+  ["МСЗ", "Малый Спорт Зал"],
+  ["СЗ", "Спорт Зал"],
+];
 
 let NameFormats = [
-    ["SAT Eng", "SAT English"],
-    ["Глобальные перспективы и проектные работы", "GPPW"],
-    ["Человек. Общество. Право (Основы права)", "Основы права"],
-    ["Начальная военная и технологическая подготовка", "Военная подготовка"]
-]
+  ["SAT Eng", "SAT English"],
+  ["Глобальные перспективы и проектные работы", "GPPW"],
+  ["Человек. Общество. Право (Основы права)", "Основы права"],
+  ["Начальная военная и технологическая подготовка", "Военная подготовка"],
+];
 
-let NameFilter = [
-    "/PISA",
-    "(Углубленная)",
-    "(Стандартная)"
-]
-
-const workbook = new ExcelJS.Workbook();
-workbook.addWorksheet("lesson");
-workbook.xlsx.writeFile("timetable.xlsx");
+let NameFilter = ["/PISA", "(Углубленная)", "(Стандартная)"];
 
 function FormatTeacherName(str) {
   for (let index = 0; index < TeacherFormats.length; index++) {
@@ -63,27 +55,27 @@ function FormatTime(str) {
 
 function FormatOffice(str) {
   for (let index = 0; index < OfficeFormats.length; index++) {
-      if (OfficeFormats[index][0] == str) {
-          return OfficeFormats[index][1];
-      }
+    if (OfficeFormats[index][0] == str) {
+      return OfficeFormats[index][1];
+    }
   }
   return str;
 }
 
 function FormatName(str) {
-    for (let index = 0; index < NameFormats.length; index++) {
-        if (NameFormats[index][0] == str) {
-            return NameFormats[index][1];
-        }
+  for (let index = 0; index < NameFormats.length; index++) {
+    if (NameFormats[index][0] == str) {
+      return NameFormats[index][1];
     }
+  }
 
-    for (let index = 0; index < NameFilter.length; index++) {
-        if (str.endsWith(NameFilter[index])) {
-            return str.slice(0, str.length - NameFilter[index].length);
-        }
+  for (let index = 0; index < NameFilter.length; index++) {
+    if (str.endsWith(NameFilter[index])) {
+      return str.slice(0, str.length - NameFilter[index].length);
     }
+  }
 
-    return str;
+  return str;
 }
 
 axios({
@@ -140,10 +132,8 @@ axios({
     const class_table = response.data.r.tables[3].data_rows;
     const period_table = response.data.r.tables[4].data_rows;
 
-    // class_table.length
-    for (let _class = 0; _class < 1; _class++) {
+    for (let _class = 0; _class < class_table.length; _class++) {
       let class_id = class_table[_class].id.toString();
-      class_id = "-30";
       axios({
         url: "https://fmalmnis.edupage.org/timetable/server/currenttt.js?__func=curentttGetData",
         method: "POST",
@@ -165,10 +155,16 @@ axios({
           __gsh: "00000000",
         },
       })
-        .then(async function (response) {
+        .then(function (response) {
+          let now = new Date();
+          console.log(
+            `Parsing: ${
+              class_table[_class].name
+            }\t[${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}:${now.getMilliseconds()}]`
+          );
+
           const workbook = new ExcelJS.Workbook();
-          await workbook.xlsx.readFile("./timetable.xlsx");
-          const worksheet = workbook.getWorksheet("lesson");
+          const worksheet = workbook.addWorksheet("lesson");
 
           const lessons = response.data.r.ttitems;
 
@@ -269,7 +265,7 @@ axios({
               }
             }
           }
-          workbook.xlsx.writeFile("timetable.xlsx");
+          workbook.xlsx.writeFile(`${class_table[_class].name}.xlsx`);
         })
         .catch(function (error) {
           console.log(error);
