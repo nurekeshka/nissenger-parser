@@ -24,7 +24,8 @@ fs.readdir(directoryPath, function (err, files) {
                     });
 
                     MainWorkBook.xlsx.writeFile("timetable.xlsx");
-                });
+                })
+                .catch(function (err) {});
             fs.unlink(path.join(directoryPath, file), () => {
                 console.log(`Packed:\t${file}`);
             });
