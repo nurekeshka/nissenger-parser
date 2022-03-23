@@ -11,7 +11,7 @@ date.setDate(date.getDate() - date.getDay() + (date.getDay() ? 7 : 0));
 date.setHours(23, 59, 59);
 period[1] = date.toISOString().slice(0, 10).replace("T", " ");
 
-let TeacherFormatter = [
+let TeacherFormats = [
   ["?міртай Э. Т.", "Әміртай Э. Т."],
   ["К", "Куратор"],
   ["С?лтан Р. М.", "Сұлтан Р. М."],
@@ -19,14 +19,19 @@ let TeacherFormatter = [
   ["У?лихан А.", "Уәлихан А."],
 ];
 
+let OfficeFormats = [
+    ["МСЗ", "Малый Спорт Зал"],
+    ["СЗ", "Спорт Зал"]
+]
+
 const workbook = new ExcelJS.Workbook();
 workbook.addWorksheet("lesson");
 workbook.xlsx.writeFile("timetable.xlsx");
 
 function FormatTeacherName(str) {
-  for (let index = 0; index < TeacherFormatter.length; index++) {
-    if (TeacherFormatter[index][0] == str) {
-      return TeacherFormatter[index][1];
+  for (let index = 0; index < TeacherFormats.length; index++) {
+    if (TeacherFormats[index][0] == str) {
+      return TeacherFormats[index][1];
     }
   }
 
@@ -41,6 +46,15 @@ function FormatTeacherName(str) {
 
 function FormatTime(str) {
   return "00:" + str;
+}
+
+function FormatOffice(str) {
+  for (let index = 0; index < OfficeFormats.length; index++) {
+      if (OfficeFormats[index][0] == str) {
+          return OfficeFormats[index][1];
+      }
+  }
+  return str;
 }
 
 axios({
@@ -190,7 +204,7 @@ axios({
                     FormatTime(period_table[j - 1].endtime),
                     subject_name,
                     FormatTeacherName(teacher_name),
-                    office,
+                    FormatOffice(office),
                     class_grade,
                     class_letter,
                     weekDays[day.getDay()],
@@ -213,7 +227,7 @@ axios({
                       FormatTime(period_table[j - 1].endtime),
                       subject_name,
                       FormatTeacherName(teacher_name),
-                      office,
+                      FormatOffice(office),
                       class_grade,
                       class_letter,
                       weekDays[day.getDay()],
