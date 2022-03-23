@@ -1,19 +1,33 @@
-//requiring path and fs modules
 const path = require('path');
 const fs = require('fs');
-//joining path of directory 
+const ExcelJS = require('exceljs');
+
 const directoryPath = path.join(__dirname, 'excel');
-//passsing directoryPath and callback function
+const MainWorkBook = new ExcelJS.Workbook();
+const WorkSheet = MainWorkBook.addWorksheet("main");
+
 fs.readdir(directoryPath, function (err, files) {
-    //handling error
+    
     if (err) {
         return console.log('Unable to scan directory: ' + err);
     } 
-    //listing all files using forEach
+    
     files.forEach(function (file) {
         if (file.endsWith(".xlsx")) {
-            
-            // fs.unlink(path.join(directoryPath, file));
+            const FileWorkBook = new ExcelJS.Workbook();
+            FileWorkBook.xlsx.readFile(path.join(directoryPath, file))
+                .then(function () {
+                    const FileWorkSheet = FileWorkBook.getWorksheet('lesson');
+                    
+                    FileWorkSheet.eachRow(function (row, rowNumber) {
+                        WorkSheet.addRow(row.values).commit();
+                    });
+
+                    MainWorkBook.xlsx.writeFile("timetable.xlsx");
+                });
+            fs.unlink(path.join(directoryPath, file), () => {
+                console.log(`Packed:\t${file}`);
+            });
         }
     });
 });
