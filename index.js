@@ -153,7 +153,7 @@ axios({
                         office,
                         class_grade,
                         class_letter,
-                        weekDays[day.getWeekday()]
+                        weekDays[day.getDay()]
                     ]).commit();
                 }
             }
