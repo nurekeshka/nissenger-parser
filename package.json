@@ -2,5 +2,8 @@
   "dependencies": {
     "axios": "^0.26.1",
     "exceljs": "^4.3.0"
+  },
+  "scripts": {
+    "download": "node parse.js&&node pack.js"
   }
 }
