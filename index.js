@@ -24,6 +24,19 @@ let OfficeFormats = [
     ["СЗ", "Спорт Зал"]
 ]
 
+let NameFormats = [
+    ["SAT Eng", "SAT English"],
+    ["Глобальные перспективы и проектные работы", "GPPW"],
+    ["Человек. Общество. Право (Основы права)", "Основы права"],
+    ["Начальная военная и технологическая подготовка", "Военная подготовка"]
+]
+
+let NameFilter = [
+    "/PISA",
+    "(Углубленная)",
+    "(Стандартная)"
+]
+
 const workbook = new ExcelJS.Workbook();
 workbook.addWorksheet("lesson");
 workbook.xlsx.writeFile("timetable.xlsx");
@@ -55,6 +68,22 @@ function FormatOffice(str) {
       }
   }
   return str;
+}
+
+function FormatName(str) {
+    for (let index = 0; index < NameFormats.length; index++) {
+        if (NameFormats[index][0] == str) {
+            return NameFormats[index][1];
+        }
+    }
+
+    for (let index = 0; index < NameFilter.length; index++) {
+        if (str.endsWith(NameFilter[index])) {
+            return str.slice(0, str.length - NameFilter[index].length);
+        }
+    }
+
+    return str;
 }
 
 axios({
@@ -104,6 +133,7 @@ axios({
       "friday",
       "saturday",
     ];
+
     const teacher_table = response.data.r.tables[0].data_rows;
     const subject_table = response.data.r.tables[1].data_rows;
     const office_table = response.data.r.tables[2].data_rows;
@@ -202,7 +232,7 @@ axios({
                   .addRow([
                     FormatTime(period_table[j - 1].starttime),
                     FormatTime(period_table[j - 1].endtime),
-                    subject_name,
+                    FormatName(subject_name),
                     FormatTeacherName(teacher_name),
                     FormatOffice(office),
                     class_grade,
@@ -225,7 +255,7 @@ axios({
                     .addRow([
                       FormatTime(period_table[j - 1].starttime),
                       FormatTime(period_table[j - 1].endtime),
-                      subject_name,
+                      FormatName(subject_name),
                       FormatTeacherName(teacher_name),
                       FormatOffice(office),
                       class_grade,
