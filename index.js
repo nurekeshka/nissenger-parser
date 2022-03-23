@@ -143,18 +143,51 @@ axios({
                 // GETTING THE WEEKDAY
                 let day = new Date(lessons[i].date);
 
-                // GETTING EVERY LESSON BETWEEN THESE TIME
-                for (let j = +lessons[i].uniperiod; j < +lessons[i].uniperiod + lessons[i].durationperiods; j++) {
-                    worksheet.addRow([
-                        period_table[j - 1].starttime,
-                        period_table[j - 1].endtime,
-                        subject_name,
-                        teacher_name,
-                        office,
-                        class_grade,
-                        class_letter,
-                        weekDays[day.getDay()]
-                    ]).commit();
+                // GETTING GROUP
+                let group = "";
+                let profile = "";
+
+                if (lessons[i].groupnames[0] != "") {
+                    if (lessons[i].groupnames[0].indexOf("Подгруппа") + 1) {
+                        group = lessons[i].groupnames[0].charAt(0);
+                    }
+                    else {
+                        profile = lessons[i].groupnames[0];
+                    }
+                    // GETTING EVERY LESSON BETWEEN THESE TIME
+                    for (let j = +lessons[i].uniperiod; j < +lessons[i].uniperiod + lessons[i].durationperiods; j++) {
+                        worksheet.addRow([
+                            period_table[j - 1].starttime,
+                            period_table[j - 1].endtime,
+                            subject_name,
+                            teacher_name,
+                            office,
+                            class_grade,
+                            class_letter,
+                            weekDays[day.getDay()],
+                            group,
+                            profile
+                        ]).commit();
+                    }
+                }
+                else {
+                    // GETTING EVERY LESSON BETWEEN THESE TIME
+                    for (let j = +lessons[i].uniperiod; j < +lessons[i].uniperiod + lessons[i].durationperiods; j++) {
+                        for (let k = 1; k < 3; k++) {
+                            worksheet.addRow([
+                                period_table[j - 1].starttime,
+                                period_table[j - 1].endtime,
+                                subject_name,
+                                teacher_name,
+                                office,
+                                class_grade,
+                                class_letter,
+                                weekDays[day.getDay()],
+                                k,
+                                profile
+                            ]).commit();
+                        }
+                    }
                 }
             }
             workbook.xlsx.writeFile('timetable.xlsx');
