@@ -39,6 +39,10 @@ function FormatTeacherName(str) {
     .join(" ");
 }
 
+function FormatTime(str) {
+  return "00:" + str;
+}
+
 axios({
   method: "POST",
   url: "https://fmalmnis.edupage.org/rpr/server/maindbi.js?__func=mainDBIAccessor",
@@ -182,8 +186,8 @@ axios({
               ) {
                 worksheet
                   .addRow([
-                    period_table[j - 1].starttime,
-                    period_table[j - 1].endtime,
+                    FormatTime(period_table[j - 1].starttime),
+                    FormatTime(period_table[j - 1].endtime),
                     subject_name,
                     FormatTeacherName(teacher_name),
                     office,
@@ -205,8 +209,8 @@ axios({
                 for (let k = 1; k < 3; k++) {
                   worksheet
                     .addRow([
-                      period_table[j - 1].starttime,
-                      period_table[j - 1].endtime,
+                      FormatTime(period_table[j - 1].starttime),
+                      FormatTime(period_table[j - 1].endtime),
                       subject_name,
                       FormatTeacherName(teacher_name),
                       office,
