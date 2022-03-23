@@ -51,6 +51,11 @@ axios({
                     [
                         "name"
                     ],
+                    "periods":
+                    [
+                        "starttime",
+                        "endtime"
+                    ]
                 },
             }
         ],
@@ -66,7 +71,8 @@ axios({
     const subject_table = response.data.r.tables[1].data_rows;
     const office_table = response.data.r.tables[2].data_rows;
     const class_table = response.data.r.tables[3].data_rows;
-    
+    const period_table = response.data.r.tables[4].data_rows;
+
     // class_table.length
     for (let _class = 0; _class < 1; _class++) {
         let class_id = class_table[_class].id.toString();
