@@ -16,6 +16,12 @@ const workbook = new ExcelJS.Workbook();
 workbook.addWorksheet('lesson');
 workbook.xlsx.writeFile('timetable.xlsx');
 
+function titleCase(str) {
+    return str.toLowerCase().split(' ').map(function(word) {
+      return word.replace(word[0], word[0].toUpperCase());
+    }).join(' ');
+}
+
 axios({
     method: 'POST',
     url: 'https://fmalmnis.edupage.org/rpr/server/maindbi.js?__func=mainDBIAccessor',
@@ -178,7 +184,7 @@ axios({
                                 period_table[j - 1].starttime,
                                 period_table[j - 1].endtime,
                                 subject_name,
-                                teacher_name,
+                                titleCase(teacher_name),
                                 office,
                                 class_grade,
                                 class_letter,
