@@ -66,7 +66,8 @@ axios({
         console.log('Responced: "' + response.statusText + '"\nStatus code is: ' + response.status);
         return null;
     }
-    
+
+    const weekDays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]    
     const teacher_table = response.data.r.tables[0].data_rows;
     const subject_table = response.data.r.tables[1].data_rows;
     const office_table = response.data.r.tables[2].data_rows;
@@ -76,7 +77,7 @@ axios({
     // class_table.length
     for (let _class = 0; _class < 1; _class++) {
         let class_id = class_table[_class].id.toString();
-        class_id = '-1';
+        class_id = '-30';
         axios({
             url: 'https://fmalmnis.edupage.org/timetable/server/currenttt.js?__func=curentttGetData',
             method: 'POST',
@@ -127,13 +128,34 @@ axios({
                     }
                 }
 
-                worksheet.addRow([
-                    lessons[i].starttime,
-                    lessons[i].endtime,
-                    subject_name,
-                    teacher_name,
-                    office
-                ]).commit();
+                // GETTING CLASS GRADE AND CLASS LETTER
+                for (let j = 0; j < class_table.length; j++) {
+                    if (class_table[j].id == class_id) {
+                        class_name = class_table[j].name;
+                        class_grade = class_name.slice(0, class_name.length - 1);
+                        class_letter = class_name.charAt(class_name.length - 1);
+                    }
+                }
+
+                // GIVING DURATION PERIOD TO SINGLE LESSONS
+                lessons[i].durationperiods = lessons[i].durationperiods === undefined ? 1 : lessons[i].durationperiods;
+
+                // GETTING THE WEEKDAY
+                let day = new Date(lessons[i].date);
+
+                // GETTING EVERY LESSON BETWEEN THESE TIME
+                for (let j = +lessons[i].uniperiod; j < +lessons[i].uniperiod + lessons[i].durationperiods; j++) {
+                    worksheet.addRow([
+                        period_table[j - 1].starttime,
+                        period_table[j - 1].endtime,
+                        subject_name,
+                        teacher_name,
+                        office,
+                        class_grade,
+                        class_letter,
+                        weekDays[day.getWeekday()]
+                    ]).commit();
+                }
             }
             workbook.xlsx.writeFile('timetable.xlsx');
         }).catch(function (error) {
