@@ -4,13 +4,13 @@ const ExcelJS = require('exceljs');
 
 const directoryPath = path.join(__dirname, 'excel');
 const MainWorkBook = new ExcelJS.Workbook();
-const WorkSheet = MainWorkBook.addWorksheet("main");
+const WorkSheet = MainWorkBook.addWorksheet("Sheet");
 
 fs.readdir(directoryPath, function (err, files) {
     
     if (err) {
         return console.log('Unable to scan directory: ' + err);
-    } 
+    }
     
     files.forEach(function (file) {
         if (file.endsWith(".xlsx")) {
@@ -28,11 +28,11 @@ fs.readdir(directoryPath, function (err, files) {
                 .catch(function (err) {});
         }
     });
-    files.forEach(function (file) {
-        if (file.endsWith('.xlsx')) {
-            fs.unlink(path.join(directoryPath, file), () => {
-                console.log(`Packed:\t${file}`);
-            });
-        }
-    });
+    // files.forEach(function (file) {
+    //     if (file.endsWith('.xlsx')) {
+    //         fs.unlink(path.join(directoryPath, file), () => {
+    //             console.log(`Packed:\t${file}`);
+    //         });
+    //     }
+    // });
 });
