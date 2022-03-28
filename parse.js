@@ -142,8 +142,8 @@ axios({
             null,
             {
               year: 2021,
-              datefrom: "2022-03-14",
-              dateto: "2022-03-20",
+              datefrom: period[0],
+              dateto: period[1],
               table: "classes",
               id: class_id,
               showColors: true,
