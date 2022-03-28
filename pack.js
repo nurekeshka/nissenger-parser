@@ -26,6 +26,10 @@ fs.readdir(directoryPath, function (err, files) {
                     MainWorkBook.xlsx.writeFile("timetable.xlsx");
                 })
                 .catch(function (err) {});
+        }
+    });
+    files.forEach(function (file) {
+        if (file.endsWith('.xlsx')) {
             fs.unlink(path.join(directoryPath, file), () => {
                 console.log(`Packed:\t${file}`);
             });
