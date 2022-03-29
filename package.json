@@ -5,6 +5,6 @@
     "form-data": "^4.0.0"
   },
   "scripts": {
-    "download": "node parse.js&&node pack.js"
+    "start": "node main.js"
   }
 }
