@@ -1,5 +1,11 @@
-const { default: axios } = require("axios");
+const { default: Axios } = require("axios");
 const ExcelJS = require("exceljs");
+const Cron = require("node-cron");
+const Fs = require("fs");
+const FormData = require("form-data");
+
+const TOKEN = "5186027031:AAHH-TLVYYQdYXin71ccQDeJS5CYdzhjf-8";
+const CHAT_ID = "-716666113";
 
 const TeacherFormats = [
   ["?міртай Э. Т.", "Әміртай Э. Т."],
@@ -165,7 +171,7 @@ function GetEndOfThisWeek() {
 }
 
 function GetDatabase() {
-  return axios({
+  return Axios({
     method: "POST",
     url: "https://fmalmnis.edupage.org/rpr/server/maindbi.js?__func=mainDBIAccessor",
     data: {
@@ -195,7 +201,7 @@ function GetDatabase() {
 }
 
 function GetTimetableOfClass(ID) {
-  return axios({
+  return Axios({
     url: "https://fmalmnis.edupage.org/timetable/server/currenttt.js?__func=curentttGetData",
     method: "POST",
     data: {
@@ -216,8 +222,8 @@ function GetTimetableOfClass(ID) {
   });
 }
 
-function Bootstrap() {
-  GetDatabase().then(function (response) {
+function Bootstrap(file) {
+  GetDatabase().then((response) => {
     const TeacherTable = response.data.r.tables[0].data_rows;
     const SubjectTable = response.data.r.tables[1].data_rows;
     const OfficeTable = response.data.r.tables[2].data_rows;
@@ -293,9 +299,35 @@ function Bootstrap() {
           }
         });
       }
-      Workbook.xlsx.writeFile("timetable.xlsx");
+      Workbook.xlsx.writeFile(file);
     });
   });
 }
 
-Bootstrap();
+function UploadFile(file) {
+  const Data = new FormData();
+  Data.append("file", Fs.createReadStream(file));
+
+  return Axios({
+    method: "POST",
+    url: "https://api.nissenger.com/timetables/upload-timetable",
+    data: {
+      Data
+    }
+  });
+}
+
+function SendToTelegram(message) {
+  Axios({
+    method: "GET",
+    url: `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${message}`
+  });
+}
+
+Cron.schedule("* 1 * * *", () => {
+  file = "timetable.xlsx";
+  Bootstrap(file);
+  UploadFile(file).then((response) => {
+    SendToTelegram(response.statuscode);
+  })
+});
