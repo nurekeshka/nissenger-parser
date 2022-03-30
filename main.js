@@ -1,11 +1,12 @@
 const { default: Axios } = require("axios");
 const ExcelJS = require("exceljs");
 const Cron = require("node-cron");
-const Fs = require("fs");
+const fs = require("fs");
 const FormData = require("form-data");
+require("dotenv").config();
 
-const TOKEN = "5186027031:AAHH-TLVYYQdYXin71ccQDeJS5CYdzhjf-8";
-const CHAT_ID = "-716666113";
+const NewVersion = "timetable.xlsx";
+const PreviosVersion = "previous.xlsx";
 
 const TeacherFormats = [
   ["?міртай Э. Т.", "Әміртай Э. Т."],
@@ -222,7 +223,7 @@ function GetTimetableOfClass(ID) {
   });
 }
 
-function Bootstrap(file) {
+async function Bootstrap(file) {
   GetDatabase().then((response) => {
     const TeacherTable = response.data.r.tables[0].data_rows;
     const SubjectTable = response.data.r.tables[1].data_rows;
@@ -238,7 +239,7 @@ function Bootstrap(file) {
       ClassNames.push(GetNameInTable(ClassTable, ClassObject.id));
     });
 
-    Promise.all(ClassPromises).then(function (Timetables) {
+    Promise.all(ClassPromises).then(async function (Timetables) {
       const Workbook = new ExcelJS.Workbook();
       const Worksheet = Workbook.addWorksheet("Sheet");
 
@@ -299,35 +300,90 @@ function Bootstrap(file) {
           }
         });
       }
-      Workbook.xlsx.writeFile(file);
+      await Workbook.xlsx.writeFile(file);
     });
   });
 }
 
 function UploadFile(file) {
   const Data = new FormData();
-  Data.append("file", Fs.createReadStream(file));
+  Data.append("file", fs.createReadStream(file));
 
   return Axios({
     method: "POST",
-    url: "https://api.nissenger.com/timetables/upload-timetable",
+    // url: "https://api.nissenger.com/timetables/upload-timetable",
+    url: "http://localhost:3000/timetables/upload-timetable",
     data: {
-      Data
-    }
+      Data,
+    },
   });
 }
 
 function SendToTelegram(message) {
   Axios({
     method: "GET",
-    url: `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${message}`
+    url: `https://api.telegram.org/bot${process.env.TOKEN}/sendMessage?chat_id=${process.env.CHAT_ID}&text=${message}`,
   });
 }
 
-Cron.schedule("* 1 * * *", () => {
-  file = "timetable.xlsx";
-  Bootstrap(file);
-  UploadFile(file).then((response) => {
-    SendToTelegram(response.statuscode);
+function AfterUpdate(response) {
+  if (response.status === 201) {
+    SendToTelegram("File update went successfully!");
+  } else {
+    SendToTelegram(
+      `File update finished with responce status: ${response.status}`
+    );
+  }
+}
+
+async function CheckForChange(file, compare) {
+  const FileWorkbook = new ExcelJS.Workbook();
+  const CompareWorkbook = new ExcelJS.Workbook();
+
+  try {
+    await Promise.all([
+      FileWorkbook.xlsx.readFile(file),
+      CompareWorkbook.xlsx.readFile(compare)
+    ]);
+  
+    const FileSheet = FileWorkbook.getWorksheet("Sheet");
+    const CompareSheet = CompareWorkbook.getWorksheet("Sheet");
+    if (FileSheet.rowCount != CompareSheet.rowCount) {
+      return true;
+    }
+    for (let index = 0; index < FileSheet; index++) {
+      if (FileSheet.getRow(index) != CompareSheet.getRow(index)) {
+        return true;
+      }
+    }
+    return false;
+  } catch (error) {
+    return error;
+  }
+}
+
+Cron.schedule("* * * * *", async () => {
+  fs.unlink(PreviosVersion, (error) => {
+    if (error && error.errno != -4058) {
+      SendToTelegram(error);
+    }
+  });
+  
+  fs.rename(NewVersion, PreviosVersion, (error) => {
+    if (error && error.errno != -4058) {
+      SendToTelegram(error);
+    }
   })
+  
+  await Bootstrap(NewVersion);
+  
+  let changed = await CheckForChange(NewVersion, PreviosVersion);
+  console.log(changed);
+  
+  // if (changed) {
+  //   UploadFile(NewVersion);
+  //   SendToTelegram("Timetable changed and uploaded to the server!");
+  // } else {
+  //   SendToTelegram("Timetable did not change, current version is okay!");
+  // }
 });
