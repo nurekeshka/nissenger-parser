@@ -266,9 +266,9 @@ async function Bootstrap(file) {
             Lesson.durationperiods === undefined ? 1 : Lesson.durationperiods;
           const SubjectDay = FormatDay(Lesson.date);
           const SubjectGroups =
-            SubjectName != "Математика (10)"
-              ? FormatGroups(Lesson.groupnames[0])
-              : [""];
+            SubjectName == "Математика (10)" || SubjectName == "Физика ВСО" || SubjectName == "Химия ВСО" || SubjectName == "Информатика ВСО" || SubjectName == "Биология ВСО"
+              ? [""]
+              : FormatGroups(Lesson.groupnames[0]);
 
           let SubjectProfile;
 
@@ -362,28 +362,29 @@ async function CheckForChange(file, compare) {
   }
 }
 
-Cron.schedule("* * * * *", async () => {
-  fs.unlink(PreviosVersion, (error) => {
-    if (error && error.errno != -4058) {
-      SendToTelegram(error);
-    }
-  });
+Bootstrap(NewVersion);
+// Cron.schedule("* * * * *", async () => {
+//   fs.unlink(PreviosVersion, (error) => {
+//     if (error && error.errno != -4058) {
+//       SendToTelegram(error);
+//     }
+//   });
   
-  fs.rename(NewVersion, PreviosVersion, (error) => {
-    if (error && error.errno != -4058) {
-      SendToTelegram(error);
-    }
-  })
+//   fs.rename(NewVersion, PreviosVersion, (error) => {
+//     if (error && error.errno != -4058) {
+//       SendToTelegram(error);
+//     }
+//   })
   
-  await Bootstrap(NewVersion);
+//   await Bootstrap(NewVersion);
   
-  let changed = await CheckForChange(NewVersion, PreviosVersion);
-  console.log(changed);
+//   let changed = await CheckForChange(NewVersion, PreviosVersion);
+//   console.log(changed);
   
-  // if (changed) {
-  //   UploadFile(NewVersion);
-  //   SendToTelegram("Timetable changed and uploaded to the server!");
-  // } else {
-  //   SendToTelegram("Timetable did not change, current version is okay!");
-  // }
-});
+//   // if (changed) {
+//   //   UploadFile(NewVersion);
+//   //   SendToTelegram("Timetable changed and uploaded to the server!");
+//   // } else {
+//   //   SendToTelegram("Timetable did not change, current version is okay!");
+//   // }
+// });
