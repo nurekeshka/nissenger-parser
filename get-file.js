@@ -3,7 +3,7 @@ const ExcelJS = require("exceljs");
 const fs = require("fs");
 
 const NewVersion = "timetable.xlsx";
-const PreviosVersion = "previous.xlsx";
+const OldVersion = "previous.xlsx";
 
 const TeacherFormats = [
   ["?міртай Э. Т.", "Әміртай Э. Т."],
@@ -302,30 +302,17 @@ async function Bootstrap(file) {
   });
 }
 
-Bootstrap(NewVersion);
 
-// Cron.schedule("* * * * *", async () => {
-//   fs.unlink(PreviosVersion, (error) => {
-//     if (error && error.errno != -4058) {
-//       SendToTelegram(error);
-//     }
-//   });
-  
-//   fs.rename(NewVersion, PreviosVersion, (error) => {
-//     if (error && error.errno != -4058) {
-//       SendToTelegram(error);
-//     }
-//   })
-  
-//   await Bootstrap(NewVersion);
-  
-//   let changed = await CheckForChange(NewVersion, PreviosVersion);
-//   console.log(changed);
-  
-//   // if (changed) {
-//   //   UploadFile(NewVersion);
-//   //   SendToTelegram("Timetable changed and uploaded to the server!");
-//   // } else {
-//   //   SendToTelegram("Timetable did not change, current version is okay!");
-//   // }
-// });
+
+function Main() {
+  if (fs.existsSync(OldVersion)) {
+    fs.unlink(OldVersion, () => {});
+  }
+  if (fs.existsSync(NewVersion)) {
+    fs.rename(NewVersion, OldVersion, () => {});
+  }
+
+  Bootstrap(NewVersion);
+}
+
+Main();
