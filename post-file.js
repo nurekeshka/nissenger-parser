@@ -13,8 +13,8 @@ function UploadFile(file) {
 
   return Axios({
     method: "POST",
-    // url: "https://api.nissenger.com/timetables/upload-timetable",
-    url: "http://localhost:3000/timetables/upload-timetable",
+    url: "https://api.nissenger.com/timetables/upload-timetable",
+    // url: "http://localhost:3000/timetables/upload-timetable",
     data: {
       Data,
     },
