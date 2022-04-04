@@ -156,6 +156,9 @@ function GetShortInTable(Table, ID) {
 
 function GetStartOfThisWeek() {
   let date = new Date();
+  if (date.getDay() == 0) {
+    throw("Sunday is today! Check it out, if timetable is empty");
+  }
   date.setDate(date.getDate() - date.getDay() + 1);
   date.setHours(23, 59, 59);
   return date.toISOString().slice(0, 10).replace("T", " ");
@@ -163,6 +166,9 @@ function GetStartOfThisWeek() {
 
 function GetEndOfThisWeek() {
   let date = new Date();
+  if (date.getDay() == 0) {
+    throw("Sunday is today! Check it out, if timetable is empty");
+  }
   date.setDate(date.getDate() - date.getDay() + (date.getDay() ? 7 : 0));
   date.setHours(23, 59, 59);
   return date.toISOString().slice(0, 10).replace("T", " ");
