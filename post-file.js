@@ -1,28 +1,28 @@
 const FormData = require("form-data");
 const fs = require("fs");
 const ExcelJS = require("exceljs");
-const { default: Axios } = require("axios");
+const { default: axios } = require("axios");
 require("dotenv").config();
+
+
+// url: "https://api.nissenger.com/timetables/upload-timetable"
+// url: "http://localhost:3000/timetables/upload-timetable"
 
 const NewVersion = "timetable.xlsx";
 const OldVersion = "previous.xlsx";
 
-function UploadFile(file) {
-  const Data = new FormData();
-  Data.append("file", fs.createReadStream(file));
-
-  return Axios({
-    method: "POST",
-    url: "https://api.nissenger.com/timetables/upload-timetable",
-    // url: "http://localhost:3000/timetables/upload-timetable",
-    data: {
-      Data,
-    },
-  });
+function UploadFile(filename) {
+  const form = new FormData();
+  const fileStream = fs.createReadStream(`./${filename}`)
+  form.append("file", fileStream, filename);
+  axios.post(
+    "http://localhost:3000/timetables/upload-timetable",
+    form
+  ).then((response) => {AfterUpload(response)});
 }
 
 function SendToTelegram(message) {
-  Axios({
+  axios({
     method: "GET",
     url: `https://api.telegram.org/bot${process.env.TOKEN}/sendMessage?chat_id=${process.env.CHAT_ID}&text=${message}`,
   }).catch((error) => {console.log(error);});
@@ -55,7 +55,7 @@ async function CheckForChange(file, compare) {
   }
   for (let row = 1; row < FileSheet.rowCount; row++) {
     for (let cell = 1; cell < 10; cell++) {
-        // console.log(`${row}:${cell}\nFile #1: ${FileSheet.getRow(row).getCell(cell).value}\nFile #2: ${CompareSheet.getRow(row).getCell(cell).value}\n\n`)
+        console.log(`${row}:${cell}\nFile #1: ${FileSheet.getRow(row).getCell(cell).value}\nFile #2: ${CompareSheet.getRow(row).getCell(cell).value}\n\n`)
         if (FileSheet.getRow(row).getCell(cell).value != CompareSheet.getRow(row).getCell(cell).value) {
             return true;
         }
@@ -68,17 +68,20 @@ async function Main() {
     if (fs.existsSync(OldVersion) && fs.existsSync(NewVersion)) {
         const Changed = await CheckForChange(NewVersion, OldVersion);
         if (Changed === true) {
-            UploadFile(NewVersion).then((response) => {AfterUpload(response)});
+            UploadFile(NewVersion);
+            SendToTelegram("Case 1");
         } else {
             SendToTelegram("Current version is okay!\n:)")
         }
     } else {
         if (fs.existsSync(NewVersion)) {
-            UploadFile(NewVersion).then((response) => {AfterUpload(response)});
+            UploadFile(NewVersion);
+            SendToTelegram("Case 2");
         } else {
             SendToTelegram("Something broke!\n:)")
         }
     }
 }
 
-Main();
+// Main();
+CheckForChange(NewVersion, OldVersion).then((response) => {console.log(response)}).catch((error) => {console.log(error)});
