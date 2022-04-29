@@ -308,8 +308,6 @@ async function Bootstrap(file) {
   });
 }
 
-
-
 function Main() {
   if (fs.existsSync(OldVersion)) {
     fs.unlink(OldVersion, () => {});
