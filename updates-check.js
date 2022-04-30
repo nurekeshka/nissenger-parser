@@ -1,5 +1,6 @@
 const excelJs = require("exceljs");
 const { default: axios } = require("axios");
+const fs = require("fs");
 require("dotenv").config();
 
 newVersion = process.env.NEW_VERSION_NAME;
@@ -49,12 +50,14 @@ async function main() {
     const changed = await checkForChange(newVersion, oldVersion);
 
     if (changed) {
-        sendToTelegram('Timetable was updated on website');
+      sendToTelegram("Timetable was updated on website");
     } else {
-        sendToTelegram('Timetable did not change');
+      sendToTelegram("Timetable did not change");
     }
   } else {
-      sendToTelegram('Older version of timetable was not found. Update timetable anyway');
+    sendToTelegram(
+      "Older version of timetable was not found. Update timetable anyway"
+    );
   }
 }
 
