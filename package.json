@@ -9,6 +9,6 @@
   },
   "scripts": {
     "loop": "node main.js",
-    "start": "node download.js&&node updates-check.js"
+    "start": "node download-file.js&&node updates-check.js"
   }
 }
