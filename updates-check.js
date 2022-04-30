@@ -3,8 +3,8 @@ const { default: axios } = require("axios");
 const fs = require("fs");
 require("dotenv").config();
 
-newVersion = process.env.NEW_VERSION_NAME;
-oldVersion = process.env.OLD_VERSION_NAME;
+newVersion = `./excel/${process.env.NEW_VERSION_NAME}`;
+oldVersion = `./excel/${process.env.OLD_VERSION_NAME}`;
 
 function sendToTelegram(message) {
   axios({
@@ -19,10 +19,10 @@ async function checkForChange(filename, comparename) {
   const fileWorkbook = new excelJs.Workbook();
   const compareWorkbook = new excelJs.Workbook();
 
-  await Promise.all(
+  await Promise.all([
     fileWorkbook.xlsx.readFile(filename),
     compareWorkbook.xlsx.readFile(comparename)
-  );
+  ]);
 
   const fileSheet = fileWorkbook.getWorksheet(process.env.SHEET_NAME);
   const compareSheet = compareWorkbook.getWorksheet(process.env.SHEET_NAME);
@@ -31,7 +31,7 @@ async function checkForChange(filename, comparename) {
     return true;
   }
 
-  for (let row = 1; i < fileSheet.rowCount; row++) {
+  for (let row = 1; row < fileSheet.rowCount; row++) {
     for (let cell = 1; cell < 10; cell++) {
       if (
         fileSheet.getRow(row).getCell(cell).value !=
