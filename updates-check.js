@@ -57,3 +57,5 @@ async function main() {
       sendToTelegram('Older version of timetable was not found. Update timetable anyway');
   }
 }
+
+main();
