@@ -8,7 +8,7 @@
     "node-cron": "^3.0.0"
   },
   "scripts": {
-    "start": "node main.js",
-    "upload": "node get-file.js&&node post-file.js"
+    "loop": "node main.js",
+    "start": "node download.js&&node updates-check.js"
   }
 }
